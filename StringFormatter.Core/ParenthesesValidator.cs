@@ -1,3 +1,5 @@
+using StringFormatter.Core.Exceptions;
+
 namespace StringFormatter.Core;
 
 public class ParenthesesValidator
@@ -27,15 +29,15 @@ public class ParenthesesValidator
                     counter -= 1;
                     closeBracketIndex = i;
                     if (i == openBracketIndex + 1)
-                        throw new Exception();
+                        throw new ValidatorException("Empty argument name");
                     if (i + 1 < stringToValidate.Length && stringToValidate[i + 1] == '}')
                         continue;
                     if (counter < 0)
-                        throw new Exception();
+                        throw new ValidatorException("Closing bracket detected before opening bracket");
                 }
             }
         }
         if (counter != 0)
-            throw new Exception();
+            throw new ValidatorException("Count of brackets is not equal");
     }
 }
