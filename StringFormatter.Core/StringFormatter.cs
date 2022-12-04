@@ -88,7 +88,7 @@ public class StringFormatter : IStringFormatter
         if (!classMembers.ContainsKey(argumentWithoutIndex.ToString()))
             throw new FormatterException($"Object doesn't contains such filed: {argumentWithoutIndex}");
         if (i + 1 >= argumentName.Length || argumentName[i + 1] == ']' || !argumentName.Contains(']'))
-            throw new FormatException("Given empty index");
+            throw new FormatterException("Given empty index");
         StringBuilder index = new();
         i++;
         while (i < argumentName.Length && argumentName[i] != ']')
@@ -96,7 +96,6 @@ public class StringFormatter : IStringFormatter
             index.Append(argumentName[i]);
             i++;
         }
-        ClassMemberInfo collectionInfo = classMembers[argumentWithoutIndex.ToString()];
         IList collection = classMembers[argumentWithoutIndex.ToString()].Value as IList;
         return collection[Int32.Parse(index.ToString())].ToString();
     }
