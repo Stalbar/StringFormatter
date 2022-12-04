@@ -1,5 +1,9 @@
+using System.Security.Cryptography.X509Certificates;
 using StringFormatter.Core.Exceptions;
 using System.Text;
+using System.Collections;
+using System.Collections.Generic;
+
 namespace StringFormatter.Core;
 
 public class StringFormatter : IStringFormatter
@@ -65,8 +69,35 @@ public class StringFormatter : IStringFormatter
 
     private string GetArgumentValue(string argumentName, Dictionary<string, ClassMemberInfo> classMembers)
     {
+        if (argumentName.Contains("["))
+            return GetArrayAccessorArgument(argumentName, classMembers);
         if (!classMembers.ContainsKey(argumentName))
             throw new FormatterException($"Object doesn't contains such field: {argumentName}");
         return (classMembers[argumentName].ToString());
+    }
+
+    private string GetArrayAccessorArgument(string argumentName, Dictionary<string, ClassMemberInfo> classMembers)
+    {
+        StringBuilder argumentWithoutIndex = new();
+        int i = 0;
+        while (i < argumentName.Length && argumentName[i] != '[')
+        {
+            argumentWithoutIndex.Append(argumentName[i]);
+            i++;
+        }
+        if (!classMembers.ContainsKey(argumentWithoutIndex.ToString()))
+            throw new FormatterException($"Object doesn't contains such filed: {argumentWithoutIndex}");
+        if (i + 1 >= argumentName.Length || argumentName[i + 1] == ']' || !argumentName.Contains(']'))
+            throw new FormatException("Given empty index");
+        StringBuilder index = new();
+        i++;
+        while (i < argumentName.Length && argumentName[i] != ']')
+        {
+            index.Append(argumentName[i]);
+            i++;
+        }
+        ClassMemberInfo collectionInfo = classMembers[argumentWithoutIndex.ToString()];
+        IList collection = classMembers[argumentWithoutIndex.ToString()].Value as IList;
+        return collection[Int32.Parse(index.ToString())].ToString();
     }
 }
